@@ -1,76 +1,81 @@
 require("dotenv").config();
 var axios = require("axios");
 var keys = require("./keys.js");
-
-
-var spotify = new Spotify(keys.spotify);
+var moment = require("moment");
+var fs = require("fs");
 var x = process.argv[2];
 var arr = [];
 for (var i = 3; i < process.argv.length; i++) {
     arr.push(process.argv[i])
 }
-console.log(arr);
-var text = arr.toString();
-console.log(text);
+var text
 
 concert = function () {
-    var queryURL = "http://rest.bandsintown.com/artists/" + text + "/events?app_id=codingbootcamp"
+    text = arr.join("");
+    var queryURL = "http://rest.bandsintown.com/artists/" + text + "/events?app_id=codingbootcamp&limit=5"
+    console.log(queryURL);
     axios
         .get(queryURL)
         .then(function (response) {
-            // console.log((response))
-            for (var i = 0; i < response.data.length; i++)
-                console.log("Venue: " + response.data[i].venue.name, "\nCity: " + response.data[i].venue.city, "\nDate: " + response.data[i].datetime + "\n")
+            for (var i = 0; i < response.data.length; i++) {
+                var date = (moment(response.data[i].datetime).format('MM/DD/YYYY'));
+                console.log("Venue: " + response.data[i].venue.name, "\nCity: " + response.data[i].venue.city, "\nDate: " + date +"\n")
+            }
         })
         .catch(function (error) {
             if (error.response) {
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
                 console.log(error.response.data);
                 console.log(error.response.status);
                 console.log(error.response.headers);
             } else if (error.request) {
-                // The request was made but no response was received
-                // `error.request` is an object that comes back with details pertaining to the error that occurred.
                 console.log(error.request);
             } else {
-                // Something happened in setting up the request that triggered an Error
                 console.log("Error", error.message);
             }
             console.log(error.config);
         })
 };
 
-Spotify = function () {
-    var queryURL = "";
-    console.log(queryURL)
-    axios
-        .get(queryURL)
-        .then(function (response) {
-            console.log("spotify stuff")
+spotifySearch = function () {
+    text = arr.join("+");
+    var Spotify = require('node-spotify-api');
+    var spotify = new Spotify({
+        id: keys.spotify.id,
+        secret: keys.spotify.secret
+    })
+    if (text === "") {
+        text = "ace of base the sign";
+    }
+    spotify.search({
+            type: 'track',
+            query: text,
+            limit: 1
+        }).then(function (response) {
+            var artist = (response.tracks.items[0].album.artists[0].name);
+            var song = (response.tracks.items[0].name);
+            var pLink = (response.tracks.items[0].preview_url)
+            var album = (response.tracks.items[0].album.name)
+            console.log(`Artist: ${artist}\nSong: ${song}\nPreview Link: ${pLink}\nAlbum: ${album}`);
         })
         .catch(function (error) {
             if (error.response) {
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
                 console.log(error.response.data);
                 console.log(error.response.status);
                 console.log(error.response.headers);
             } else if (error.request) {
-                // The request was made but no response was received
-                // `error.request` is an object that comes back with details pertaining to the error that occurred.
                 console.log(error.request);
             } else {
-                // Something happened in setting up the request that triggered an Error
                 console.log("Error", error.message);
             }
             console.log(error.config);
-        })
-
-};
+        });
+}
 
 movies = function () {
-    var queryURL = "http://www.omdbapi.com/?t=" + text + "&y=&plot=short&apikey=trilogy";
+    text = arr.join("+");
+    var queryURL = "http://www.omdbapi.com/?t=" + text + "&type=movie&y=&plot=short&apikey=trilogy";
+    console.log(queryURL);
+    console.log(text);
     axios
         .get(queryURL)
         .then(function (response) {
@@ -78,17 +83,12 @@ movies = function () {
         })
         .catch(function (error) {
             if (error.response) {
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
                 console.log(error.response.data);
                 console.log(error.response.status);
                 console.log(error.response.headers);
             } else if (error.request) {
-                // The request was made but no response was received
-                // `error.request` is an object that comes back with details pertaining to the error that occurred.
                 console.log(error.request);
             } else {
-                // Something happened in setting up the request that triggered an Error
                 console.log("Error", error.message);
             }
             console.log(error.config);
@@ -100,21 +100,13 @@ switch (x) {
         concert();
         break;
     case 'spotify-this-song':
-        console.log("spotify")
-        Spotify();
-        //artist spotify.artists
-        //song name spotify.name
-        //preview link spotify.preview_url
-        //album  spotify.album
-        //
+        spotifySearch();
         break;
     case 'movie-this':
         movies();
         break;
     case 'do-what-it-says':
-
-        //use fs to take text inside random.txt to call LIRI commands.......
-        //run spotify-this-song for "I want it that way" from random.txt
+        var randomArr
         console.log("dooooooooooooo")
         break;
 
