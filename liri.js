@@ -19,7 +19,7 @@ concert = function () {
         .then(function (response) {
             for (var i = 0; i < response.data.length; i++) {
                 var date = (moment(response.data[i].datetime).format('MM/DD/YYYY'));
-                console.log("Venue: " + response.data[i].venue.name, "\nCity: " + response.data[i].venue.city, "\nDate: " + date +"\n")
+                console.log("Venue: " + response.data[i].venue.name, "\nCity: " + response.data[i].venue.city, "\nDate: " + date + "\n")
             }
         })
         .catch(function (error) {
@@ -73,6 +73,9 @@ spotifySearch = function () {
 
 movies = function () {
     text = arr.join("+");
+    if (text === "") {
+        text = "mr+nobody";
+    }
     var queryURL = "http://www.omdbapi.com/?t=" + text + "&type=movie&y=&plot=short&apikey=trilogy";
     console.log(queryURL);
     console.log(text);
@@ -95,6 +98,31 @@ movies = function () {
         });
 }
 
+doWhatItSays = function () {
+    var text;
+    fs.readFile('./random.txt', "utf8", function read(err, data) {
+        if (err) {
+            throw err;
+        }
+        text = data;
+        var dataArr = data.split(",");
+        x=dataArr[1];
+        x=x.split(" ")
+        arr=x;
+        console.log(x);
+        if (dataArr[0]==="spotify-this-song") {
+            spotifySearch();
+        }
+        if (dataArr[0]==="concert-this") {
+            concert();
+        }
+        if (dataArr[0]==="movie-this") {
+            movies();
+        }
+    })
+    
+}
+
 switch (x) {
     case 'concert-this':
         concert();
@@ -106,8 +134,7 @@ switch (x) {
         movies();
         break;
     case 'do-what-it-says':
-        var randomArr
-        console.log("dooooooooooooo")
+        doWhatItSays();
         break;
 
 }
