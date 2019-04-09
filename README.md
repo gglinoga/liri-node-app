@@ -2,7 +2,9 @@
 
 The LIRI node app provides concert venue, song, and movie data gathered from the Bands In Town, Spotify, and OMDB APIs.
 
-Use the following commands to return data:
+Start by installing the required dependencies with npm install.
+
+After installing the required packages, use the following commands to return data:
 
 * concert-this "search term"
 
